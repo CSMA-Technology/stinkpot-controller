@@ -4,16 +4,20 @@
 #include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>   // Include the WebServer library
 
+#define LED 2
+
 ESP8266WiFiMulti wifiMulti;
 
 ESP8266WebServer server(80);    // new web server that listens for HTTP requests on port 80
 
 void handleRoot();
 void handleNotFound();
+void handleLED();
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  pinMode(LED, OUTPUT);
   delay(10);
   Serial.println('\n');
 
@@ -39,6 +43,7 @@ void setup() {
 
   server.on("/", handleRoot);
   server.onNotFound(handleNotFound);
+  server.on("/LED", HTTP_POST, handleLED);
 
   server.begin();
   Serial.println("HTTP server started");
@@ -50,9 +55,15 @@ void loop() {
 }
 
 void handleRoot() {
-  server.send(200, "text/plain", "Hello world!");
+  server.send(200, "text/html", "<form action=\"/LED\" method=\"POST\"><input type=\"submit\" value=\"Toggle LED\"></form>");
 }
 
 void handleNotFound() {
   server.send(404, "text/plain", "404: Not Found");
+}
+
+void handleLED() {
+  digitalWrite(LED, !digitalRead(LED));
+  server.sendHeader("Location", "/");
+  server.send(303);
 }
