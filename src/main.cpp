@@ -24,7 +24,7 @@ void setup() {
   delay(10);
   Serial.println('\n');
 
-  wifiMulti.addAP("_3307_", "MindOv3rMatter");
+  wifiMulti.addAP("your_wifi_network", "your_wifi_password");
 
   Serial.println("Connecting ...");
   while (wifiMulti.run() != WL_CONNECTED) {
