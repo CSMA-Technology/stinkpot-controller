@@ -13,7 +13,6 @@ ESP8266WebServer server(80);    // new web server that listens for HTTP requests
 
 // FLASH_MAP_SETUP_CONFIG(FLASH_MAP_MAX_FS);
 
-void handleRoot();
 void handleNotFound();
 void handleLED();
 bool handleFileRead(String path);
@@ -47,7 +46,6 @@ void setup() {
 
   LittleFS.begin(); // Start the File System
 
-  // server.on("/", handleRoot);
   server.onNotFound([]() {
     if (!handleFileRead(server.uri())) {
       handleNotFound();
@@ -64,18 +62,14 @@ void loop() {
   server.handleClient();
 }
 
-void handleRoot() {
-  server.send(200, "text/html", "<form action=\"/LED\" method=\"POST\"><input type=\"submit\" value=\"Toggle LED\"></form>");
-}
-
 void handleNotFound() {
   server.send(404, "text/plain", "404: Not Found");
 }
 
 void handleLED() {
   digitalWrite(LED, !digitalRead(LED));
-  // server.sendHeader("Location", "/");
-  // server.send(303);
+  server.sendHeader("Location", "/");
+  server.send(303);
 }
 
 bool handleFileRead(String path) {
