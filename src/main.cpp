@@ -3,13 +3,18 @@
 #include <ESP8266WiFiMulti.h> 
 #include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>   // Include the WebServer library
+#include <Servo.h>
+
+#define ServoPin 14 // D5 --> GPIO14
 
 ESP8266WiFiMulti wifiMulti;
 
 ESP8266WebServer server(80);    // new web server that listens for HTTP requests on port 80
 
-void handleRoot();
+Servo myservo;
+
 void handleNotFound();
+void handleServo();
 
 void setup() {
   // put your setup code here, to run once:
@@ -17,14 +22,18 @@ void setup() {
   delay(10);
   Serial.println('\n');
 
-  wifiMulti.addAP("your_wifi_network", "your_wifi_password");
+  // Attach Servo
+  myservo.attach(ServoPin);
 
+  // Connect to WiFi
+  wifiMulti.addAP("your_wifi_network", "your_wifi_password");
   Serial.println("Connecting ...");
   while (wifiMulti.run() != WL_CONNECTED) {
     delay(250);
     Serial.print('.');
   }
 
+  // If connection successful, print details
   Serial.println('\n');
   Serial.print("Connected to:\t");
   Serial.println(WiFi.SSID());
@@ -37,9 +46,9 @@ void setup() {
     Serial.println("Error setting up the mDNS responder!!!!");
   }
 
-  server.on("/", handleRoot);
+  // Web Server Setup & Initiliaziation
   server.onNotFound(handleNotFound);
-
+  server.on("/motor/spin", handleServo);
   server.begin();
   Serial.println("HTTP server started");
 }
@@ -49,10 +58,21 @@ void loop() {
   server.handleClient();
 }
 
-void handleRoot() {
-  server.send(200, "text/plain", "Hello world!");
-}
-
 void handleNotFound() {
   server.send(404, "text/plain", "404: Not Found");
+}
+
+void handleServo() {
+  // URI Args
+  String servoSpeed = server.arg("servoSpeed");
+  String spinTime = server.arg("spinTime");
+
+  int speed = servoSpeed.toInt(); // Value for the speed of the servo
+  int time = spinTime.toInt(); // Value for the delay (how long we will let it spin before it stops) in milliseconds
+
+  myservo.write(speed); 
+  delay(time);
+  myservo.write(90); // Stop the motor after the given amount of time
+
+  server.send(200, "text/plain");
 }
