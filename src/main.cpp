@@ -1,34 +1,36 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <ESP8266WiFiMulti.h> 
+#include <ESP8266WiFiMulti.h>
 #include <ESP8266mDNS.h>
-#include <ESP8266WebServer.h>   // Include the WebServer library
+#include <ESP8266WebServer.h> // Include the WebServer library
 #include <Servo.h>
 
 #define ServoPin 14 // D5 --> GPIO14
 
 ESP8266WiFiMulti wifiMulti;
 
-ESP8266WebServer server(80);    // new web server that listens for HTTP requests on port 80
+ESP8266WebServer server(80); // new web server that listens for HTTP requests on port 80
 
 Servo myservo;
 
 void handleNotFound();
 void handleServo();
 
-void setup() {
+void setup()
+{
   // put your setup code here, to run once:
-  Serial.begin(115200);
+  Serial.begin(9600);
   delay(10);
   Serial.println('\n');
 
   // Attach Servo
-  myservo.attach(ServoPin);
+  // myservo.attach(ServoPin);
 
   // Connect to WiFi
-  wifiMulti.addAP("your_wifi_network", "your_wifi_password");
+  wifiMulti.addAP("Adrian's World", "alligator7");
   Serial.println("Connecting ...");
-  while (wifiMulti.run() != WL_CONNECTED) {
+  while (wifiMulti.run() != WL_CONNECTED)
+  {
     delay(250);
     Serial.print('.');
   }
@@ -40,9 +42,12 @@ void setup() {
   Serial.print("IP Address:\t");
   Serial.println(WiFi.localIP());
 
-  if (MDNS.begin("esp8266")) {
+  if (MDNS.begin("esp8266"))
+  {
     Serial.println("mDNS responder started");
-  } else {
+  }
+  else
+  {
     Serial.println("Error setting up the mDNS responder!!!!");
   }
 
@@ -53,26 +58,33 @@ void setup() {
   Serial.println("HTTP server started");
 }
 
-void loop() {
+void loop()
+{
   // put your main code here, to run repeatedly:
   server.handleClient();
 }
 
-void handleNotFound() {
+void handleNotFound()
+{
   server.send(404, "text/plain", "404: Not Found");
 }
 
-void handleServo() {
+void handleServo()
+{
+  myservo.attach(ServoPin);
   // URI Args
   String servoSpeed = server.arg("servoSpeed");
   String spinTime = server.arg("spinTime");
 
   int speed = servoSpeed.toInt(); // Value for the speed of the servo
-  int time = spinTime.toInt(); // Value for the delay (how long we will let it spin before it stops) in milliseconds
+  int time = spinTime.toInt();    // Value for the delay (how long we will let it spin before it stops) in milliseconds
 
-  myservo.write(speed); 
+  Serial.println("spintime = " + spinTime);
+
+  myservo.write(speed);
   delay(time);
-  myservo.write(90); // Stop the motor after the given amount of time
+  myservo.detach();
+  // myservo.write(90); // Stop the motor after the given amount of time
 
   server.send(200, "text/plain");
 }
