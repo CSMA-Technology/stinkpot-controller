@@ -23,9 +23,6 @@ void setup()
   delay(10);
   Serial.println('\n');
 
-  // Attach Servo
-  // myservo.attach(ServoPin);
-
   // Connect to WiFi
   wifiMulti.addAP("Adrian's World", "alligator7");
   Serial.println("Connecting ...");
@@ -84,7 +81,6 @@ void handleServo()
   myservo.write(speed);
   delay(time);
   myservo.detach();
-  // myservo.write(90); // Stop the motor after the given amount of time
 
   server.send(200, "text/plain");
 }
