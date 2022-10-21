@@ -24,7 +24,10 @@ void setup()
   Serial.println('\n');
 
   // Connect to WiFi
-  wifiMulti.addAP("Adrian's World", "alligator7");
+  /*
+   * Change the below to your own WiFi Details
+  */
+  wifiMulti.addAP("Your_WiFi_Network", "your_wifi_password"); 
   Serial.println("Connecting ...");
   while (wifiMulti.run() != WL_CONNECTED)
   {
